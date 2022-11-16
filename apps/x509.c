@@ -35,7 +35,7 @@
 static int callb(int ok, X509_STORE_CTX *ctx);
 static int sign(X509 *x, EVP_PKEY *pkey, int days, int clrext,
                 const EVP_MD *digest, CONF *conf, const char *section,
-                int preserve_dates);
+                int preserve_dates, const char *startdate, const char *enddate);
 static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *digest,
                         X509 *x, X509 *xca, EVP_PKEY *pkey,
                         STACK_OF(OPENSSL_STRING) *sigopts, const char *serialfile,
