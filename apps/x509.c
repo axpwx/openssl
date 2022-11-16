@@ -1063,12 +1063,12 @@ static int callb(int ok, X509_STORE_CTX *ctx)
 /* self sign */
 static int sign(X509 *x, EVP_PKEY *pkey, int days, int clrext,
                 const EVP_MD *digest, CONF *conf, const char *section,
-                int preserve_dates)
+                int preserve_dates, const char *startdate, const char *enddate)
 {
 
     if (!X509_set_issuer_name(x, X509_get_subject_name(x)))
         goto err;
-    if (!preserve_dates && !set_cert_times(x, NULL, NULL, days))
+    if (!preserve_dates && !set_cert_times(x, startdate, enddate, days))
         goto err;
     if (!X509_set_pubkey(x, pkey))
         goto err;
