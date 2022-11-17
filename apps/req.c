@@ -427,7 +427,7 @@ int req_main(int argc, char **argv)
         case OPT_SET_STARTDATE:
             set_startdate = opt_arg();
             break;
-        case OPT__SET_ENDDATE:
+        case OPT_SET_ENDDATE:
             set_enddate = opt_arg();
             break;
         case OPT_SET_SERIAL:
