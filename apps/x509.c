@@ -35,13 +35,13 @@
 static int callb(int ok, X509_STORE_CTX *ctx);
 static int sign(X509 *x, EVP_PKEY *pkey, int days, int clrext,
                 const EVP_MD *digest, CONF *conf, const char *section,
-                int preserve_dates, const char *startdate2, const char *enddate2);
+                int preserve_dates, const char *set_startdate, const char *set_enddate);
 static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *digest,
                         X509 *x, X509 *xca, EVP_PKEY *pkey,
                         STACK_OF(OPENSSL_STRING) *sigopts, const char *serialfile,
                         int create, int days, int clrext, CONF *conf,
                         const char *section, ASN1_INTEGER *sno, int reqfile,
-                        int preserve_dates, const char *startdate2, const char *enddate2);
+                        int preserve_dates, const char *set_startdate, const char *set_enddate);
 static int purpose_print(BIO *bio, X509 *cert, X509_PURPOSE *pt);
 static int print_x509v3_exts(BIO *bio, X509 *x, const char *exts);
 
@@ -56,12 +56,12 @@ typedef enum OPTION_choice {
     OPT_MODULUS, OPT_PUBKEY, OPT_X509TOREQ, OPT_TEXT, OPT_HASH,
     OPT_ISSUER_HASH, OPT_SUBJECT, OPT_ISSUER, OPT_FINGERPRINT, OPT_DATES,
     OPT_PURPOSE, OPT_STARTDATE, OPT_ENDDATE, OPT_CHECKEND, OPT_CHECKHOST,
-    OPT_STARTDATE2, OPT_ENDDATE2,
     OPT_CHECKEMAIL, OPT_CHECKIP, OPT_NOOUT, OPT_TRUSTOUT, OPT_CLRTRUST,
     OPT_CLRREJECT, OPT_ALIAS, OPT_CACREATESERIAL, OPT_CLREXT, OPT_OCSPID,
     OPT_SUBJECT_HASH_OLD,
     OPT_ISSUER_HASH_OLD,
     OPT_BADSIG, OPT_MD, OPT_ENGINE, OPT_NOCERT, OPT_PRESERVE_DATES,
+    OPT_SET_STARTDATE, OPT_SET_ENDDATE,
     OPT_R_ENUM, OPT_EXT
 } OPTION_CHOICE;
 
@@ -84,8 +84,8 @@ const OPTIONS x509_options[] = {
     {"email", OPT_EMAIL, '-', "Print email address(es)"},
     {"startdate", OPT_STARTDATE, '-', "Set notBefore field"},
     {"enddate", OPT_ENDDATE, '-', "Set notAfter field"},
-    {"startdate2", OPT_STARTDATE2, 's', "Set notBefore field"},
-    {"enddate2", OPT_ENDDATE2, 's', "Set notAfter field"},
+    {"set_startdate", OPT_SET_STARTDATE, 's', "Set notBefore field"},
+    {"set_enddate", OPT_SET_ENDDATE, 's', "Set notAfter field"},
     {"purpose", OPT_PURPOSE, '-', "Print out certificate purposes"},
     {"dates", OPT_DATES, '-', "Both Before and After dates"},
     {"modulus", OPT_MODULUS, '-', "Print the RSA key modulus"},
@@ -182,7 +182,7 @@ int x509_main(int argc, char **argv)
     int ret = 1, i, num = 0, badsig = 0, clrext = 0, nocert = 0;
     int text = 0, serial = 0, subject = 0, issuer = 0, startdate = 0, ext = 0;
     int enddate = 0;
-    char *startdate2 = NULL, *enddate2 = NULL;
+    char *set_startdate = NULL, *set_enddate = NULL;
     time_t checkoffset = 0;
     unsigned long certflag = 0;
     int preserve_dates = 0;
@@ -381,11 +381,11 @@ int x509_main(int argc, char **argv)
         case OPT_ENDDATE:
             enddate = ++num;
             break;
-        case OPT_STARTDATE2:
-            startdate2 = opt_arg();
+        case OPT_SET_STARTDATE:
+            set_startdate = opt_arg();
             break;
-        case OPT_ENDDATE2:
-            enddate2 = opt_arg();
+        case OPT_SET_ENDDATE:
+            set_enddate = opt_arg();
             break;
         case OPT_NOOUT:
             noout = ++num;
@@ -811,7 +811,7 @@ int x509_main(int argc, char **argv)
                         goto end;
                 }
 
-                if (!sign(x, Upkey, days, clrext, digest, extconf, extsect, preserve_dates, startdate2, enddate2))
+                if (!sign(x, Upkey, days, clrext, digest, extconf, extsect, preserve_dates, set_startdate, set_enddate))
                     goto end;
             } else if (CA_flag == i) {
                 BIO_printf(bio_err, "Getting CA Private Key\n");
@@ -826,7 +826,7 @@ int x509_main(int argc, char **argv)
                                   CApkey, sigopts,
                                   CAserial, CA_createserial, days, clrext,
                                   extconf, extsect, sno, reqfile, preserve_dates,
-                                  startdate2, enddate2))
+                                  set_startdate, set_enddate))
                     goto end;
             } else if (x509req == i) {
                 EVP_PKEY *pk;
@@ -966,7 +966,7 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
                         const char *serialfile, int create,
                         int days, int clrext, CONF *conf, const char *section,
                         ASN1_INTEGER *sno, int reqfile, int preserve_dates,
-                        const char *startdate2, const char *enddate2)
+                        const char *set_startdate, const char *set_enddate)
 {
     int ret = 0;
     ASN1_INTEGER *bs = NULL;
@@ -1010,7 +1010,7 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
     if (!X509_set_serialNumber(x, bs))
         goto end;
 
-    if (!preserve_dates && !set_cert_times(x, startdate2, enddate2, days))
+    if (!preserve_dates && !set_cert_times(x, set_startdate, set_enddate, days))
         goto end;
 
     if (clrext) {
@@ -1075,12 +1075,12 @@ static int callb(int ok, X509_STORE_CTX *ctx)
 /* self sign */
 static int sign(X509 *x, EVP_PKEY *pkey, int days, int clrext,
                 const EVP_MD *digest, CONF *conf, const char *section,
-                int preserve_dates, const char *startdate2, const char *enddate2)
+                int preserve_dates, const char *set_startdate, const char *set_enddate)
 {
 
     if (!X509_set_issuer_name(x, X509_get_subject_name(x)))
         goto err;
-    if (!preserve_dates && !set_cert_times(x, startdate2, enddate2, days))
+    if (!preserve_dates && !set_cert_times(x, set_startdate, set_enddate, days))
         goto err;
     if (!X509_set_pubkey(x, pkey))
         goto err;

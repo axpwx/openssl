@@ -91,6 +91,7 @@ typedef enum OPTION_choice {
     OPT_NAMEOPT, OPT_REQOPT, OPT_SUBJ, OPT_SUBJECT, OPT_TEXT, OPT_X509,
     OPT_MULTIVALUE_RDN, OPT_DAYS, OPT_SET_SERIAL, OPT_ADDEXT, OPT_EXTENSIONS,
     OPT_REQEXTS, OPT_PRECERT, OPT_MD,
+    OPT_SET_STARTDATE, OPT_SET_ENDDATE,
     OPT_R_ENUM
 } OPTION_CHOICE;
 
@@ -132,6 +133,8 @@ const OPTIONS req_options[] = {
     {"multivalue-rdn", OPT_MULTIVALUE_RDN, '-',
      "Enable support for multivalued RDNs"},
     {"days", OPT_DAYS, 'p', "Number of days cert is valid for"},
+    {"set_startdate", OPT_SET_STARTDATE, 's', "Set notBefore field"},
+    {"set_enddate", OPT_SET_ENDDATE, 's', "Set notAfter field"},
     {"set_serial", OPT_SET_SERIAL, 's', "Serial number to use"},
     {"addext", OPT_ADDEXT, 's',
      "Additional cert extension key=value pair (may be given more than once)"},
@@ -236,6 +239,7 @@ int req_main(int argc, char **argv)
     const char *keyalg = NULL;
     OPTION_CHOICE o;
     int ret = 1, x509 = 0, days = 0, i = 0, newreq = 0, verbose = 0;
+    char *set_startdate = NULL, *set_enddate = NULL;
     int pkey_type = -1, private = 0;
     int informat = FORMAT_PEM, outformat = FORMAT_PEM, keyform = FORMAT_PEM;
     int modulus = 0, multirdn = 0, verify = 0, noout = 0, text = 0;
@@ -370,6 +374,12 @@ int req_main(int argc, char **argv)
             break;
         case OPT_DAYS:
             days = atoi(opt_arg());
+            break;
+        case OPT_SET_STARTDATE:
+            set_startdate = opt_arg();
+            break;
+        case OPT_SET_ENDDATE:
+            set_enddate = opt_arg();
             break;
         case OPT_SET_SERIAL:
             if (serial != NULL) {
@@ -743,7 +753,7 @@ int req_main(int argc, char **argv)
                 /* set default days if it's not specified */
                 days = 30;
             }
-            if (!set_cert_times(x509ss, NULL, NULL, days))
+            if (!set_cert_times(x509ss, set_startdate, set_enddate, days))
                 goto end;
             if (!X509_set_subject_name
                 (x509ss, X509_REQ_get_subject_name(req)))
