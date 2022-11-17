@@ -56,6 +56,7 @@ typedef enum OPTION_choice {
     OPT_MODULUS, OPT_PUBKEY, OPT_X509TOREQ, OPT_TEXT, OPT_HASH,
     OPT_ISSUER_HASH, OPT_SUBJECT, OPT_ISSUER, OPT_FINGERPRINT, OPT_DATES,
     OPT_PURPOSE, OPT_STARTDATE, OPT_ENDDATE, OPT_CHECKEND, OPT_CHECKHOST,
+    OPT_STARTDATE2, OPT_ENDDATE2,
     OPT_CHECKEMAIL, OPT_CHECKIP, OPT_NOOUT, OPT_TRUSTOUT, OPT_CLRTRUST,
     OPT_CLRREJECT, OPT_ALIAS, OPT_CACREATESERIAL, OPT_CLREXT, OPT_OCSPID,
     OPT_SUBJECT_HASH_OLD,
@@ -83,6 +84,8 @@ const OPTIONS x509_options[] = {
     {"email", OPT_EMAIL, '-', "Print email address(es)"},
     {"startdate", OPT_STARTDATE, '-', "Set notBefore field"},
     {"enddate", OPT_ENDDATE, '-', "Set notAfter field"},
+    {"startdate", OPT_STARTDATE2, '-', "Set notBefore field"},
+    {"enddate", OPT_ENDDATE2, '-', "Set notAfter field"},
     {"purpose", OPT_PURPOSE, '-', "Print out certificate purposes"},
     {"dates", OPT_DATES, '-', "Both Before and After dates"},
     {"modulus", OPT_MODULUS, '-', "Print the RSA key modulus"},
@@ -376,6 +379,12 @@ int x509_main(int argc, char **argv)
             break;
         case OPT_ENDDATE:
             enddate = ++num;
+            break;
+        case OPT_STARTDATE2:
+            startdate = opt_arg();
+            break;
+        case OPT_ENDDATE2:
+            enddate = opt_arg();
             break;
         case OPT_NOOUT:
             noout = ++num;
