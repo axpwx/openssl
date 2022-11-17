@@ -381,10 +381,10 @@ int x509_main(int argc, char **argv)
             enddate = ++num;
             break;
         case OPT_STARTDATE2:
-            startdate = opt_arg();
+            startdate2 = opt_arg();
             break;
         case OPT_ENDDATE2:
-            enddate = opt_arg();
+            enddate2 = opt_arg();
             break;
         case OPT_NOOUT:
             noout = ++num;
