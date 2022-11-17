@@ -811,7 +811,7 @@ int x509_main(int argc, char **argv)
                         goto end;
                 }
 
-                if (!sign(x, Upkey, days, clrext, digest, extconf, extsect, preserve_dates, startdate, enddate))
+                if (!sign(x, Upkey, days, clrext, digest, extconf, extsect, preserve_dates, startdate2, enddate2))
                     goto end;
             } else if (CA_flag == i) {
                 BIO_printf(bio_err, "Getting CA Private Key\n");
