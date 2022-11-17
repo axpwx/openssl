@@ -825,7 +825,8 @@ int x509_main(int argc, char **argv)
                 if (!x509_certify(ctx, CAfile, digest, x, xca,
                                   CApkey, sigopts,
                                   CAserial, CA_createserial, days, clrext,
-                                  extconf, extsect, sno, reqfile, preserve_dates))
+                                  extconf, extsect, sno, reqfile, preserve_dates,
+                                  startdate2, enddate2))
                     goto end;
             } else if (x509req == i) {
                 EVP_PKEY *pk;
