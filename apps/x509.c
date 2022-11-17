@@ -963,7 +963,8 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
                         STACK_OF(OPENSSL_STRING) *sigopts,
                         const char *serialfile, int create,
                         int days, int clrext, CONF *conf, const char *section,
-                        ASN1_INTEGER *sno, int reqfile, int preserve_dates)
+                        ASN1_INTEGER *sno, int reqfile, int preserve_dates,
+                        const char *startdate2, const char *enddate2)
 {
     int ret = 0;
     ASN1_INTEGER *bs = NULL;
@@ -1007,7 +1008,7 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
     if (!X509_set_serialNumber(x, bs))
         goto end;
 
-    if (!preserve_dates && !set_cert_times(x, NULL, NULL, days))
+    if (!preserve_dates && !set_cert_times(x, startdate2, enddate2, days))
         goto end;
 
     if (clrext) {
