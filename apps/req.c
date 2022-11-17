@@ -92,7 +92,8 @@ typedef enum OPTION_choice {
     OPT_COPY_EXTENSIONS, OPT_ADDEXT, OPT_EXTENSIONS,
     OPT_REQEXTS, OPT_PRECERT, OPT_MD,
     OPT_SECTION,
-    OPT_R_ENUM, OPT_PROV_ENUM
+    OPT_R_ENUM, OPT_PROV_ENUM,
+    OPT_SET_STARTDATE, OPT_SET_ENDDATE
 } OPTION_CHOICE;
 
 const OPTIONS req_options[] = {
@@ -127,6 +128,8 @@ const OPTIONS req_options[] = {
     {"multivalue-rdn", OPT_MULTIVALUE_RDN, '-',
      "Deprecated; multi-valued RDNs support is always on."},
     {"days", OPT_DAYS, 'p', "Number of days cert is valid for"},
+    {"set_startdate", OPT_SET_STARTDATE, 's', 'Set notBefore field'},
+    {"set_enddate", OPT_SET_STARTDATE, 's', 'Set notAfter field'},
     {"set_serial", OPT_SET_SERIAL, 's', "Serial number to use"},
     {"copy_extensions", OPT_COPY_EXTENSIONS, 's',
      "copy extensions from request when using -x509"},
@@ -258,6 +261,7 @@ int req_main(int argc, char **argv)
     const char *keyalg = NULL;
     OPTION_CHOICE o;
     int days = UNSET_DAYS;
+    char *set_startdate = NULL, *set_enddate = NULL;
     int ret = 1, gen_x509 = 0, i = 0, newreq = 0, verbose = 0;
     int informat = FORMAT_UNDEF, outformat = FORMAT_PEM, keyform = FORMAT_UNDEF;
     int modulus = 0, multirdn = 1, verify = 0, noout = 0, text = 0;
@@ -419,6 +423,12 @@ int req_main(int argc, char **argv)
                            prog);
                 goto end;
             }
+            break;
+        case OPT_SET_STARTDATE:
+            set_startdate = opt_arg();
+            break;
+        case OPT__SET_ENDDATE:
+            set_enddate = opt_arg();
             break;
         case OPT_SET_SERIAL:
             if (serial != NULL) {
@@ -819,7 +829,7 @@ int req_main(int argc, char **argv)
             if (days == UNSET_DAYS) {
                 days = DEFAULT_DAYS;
             }
-            if (!set_cert_times(new_x509, NULL, NULL, days))
+            if (!set_cert_times(new_x509, set_startdate, set_enddate, days))
                 goto end;
             if (!X509_set_subject_name(new_x509, n_subj))
                 goto end;

@@ -53,7 +53,8 @@ typedef enum OPTION_choice {
     OPT_CLRREJECT, OPT_ALIAS, OPT_CACREATESERIAL, OPT_CLREXT, OPT_OCSPID,
     OPT_SUBJECT_HASH_OLD, OPT_ISSUER_HASH_OLD, OPT_COPY_EXTENSIONS,
     OPT_BADSIG, OPT_MD, OPT_ENGINE, OPT_NOCERT, OPT_PRESERVE_DATES,
-    OPT_R_ENUM, OPT_PROV_ENUM, OPT_EXT
+    OPT_R_ENUM, OPT_PROV_ENUM, OPT_EXT,
+    OPT_SET_STARTDATE, OPT_SET_ENDDATE
 } OPTION_CHOICE;
 
 const OPTIONS x509_options[] = {
@@ -135,6 +136,8 @@ const OPTIONS x509_options[] = {
      "Increment current certificate serial number"},
     {"days", OPT_DAYS, 'n',
      "Number of days until newly generated certificate expires - default 30"},
+    {"set_startdate", OPT_SET_STARTDATE, 's', 'Set notBefore field'},
+    {"set_enddate", OPT_SET_STARTDATE, 's', 'Set notAfter field'},
     {"preserve_dates", OPT_PRESERVE_DATES, '-',
      "Preserve existing validity dates"},
     {"subj", OPT_SUBJ, 's', "Set or override certificate subject (and issuer)"},
@@ -291,6 +294,7 @@ int x509_main(int argc, char **argv)
     time_t checkoffset = 0;
     unsigned long certflag = 0;
     int preserve_dates = 0;
+    char *set_startdate = NULL, *set_enddate = NULL;
     OPTION_CHOICE o;
     ENGINE *e = NULL;
 #ifndef OPENSSL_NO_MD5
@@ -378,6 +382,12 @@ int x509_main(int argc, char **argv)
                            prog);
                 goto end;
             }
+            break;
+        case OPT_SET_STARTDATE:
+            set_startdate = opt_arg();
+            break;
+        case OPT__SET_ENDDATE:
+            set_enddate = opt_arg();
             break;
         case OPT_PASSIN:
             passinarg = opt_arg();
@@ -820,7 +830,7 @@ int x509_main(int argc, char **argv)
         goto end;
 
     if (reqfile || newcert || privkey != NULL || CAfile != NULL) {
-        if (!preserve_dates && !set_cert_times(x, NULL, NULL, days))
+        if (!preserve_dates && !set_cert_times(x, set_startdate, set_enddate, days))
             goto end;
         if (!X509_set_issuer_name(x, X509_get_subject_name(issuer_cert)))
             goto end;
