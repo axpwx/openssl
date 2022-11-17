@@ -182,6 +182,7 @@ int x509_main(int argc, char **argv)
     int ret = 1, i, num = 0, badsig = 0, clrext = 0, nocert = 0;
     int text = 0, serial = 0, subject = 0, issuer = 0, startdate = 0, ext = 0;
     int enddate = 0;
+    char *startdate2 = NULL, *enddate2 = NULL;
     time_t checkoffset = 0;
     unsigned long certflag = 0;
     int preserve_dates = 0;
