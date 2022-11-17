@@ -41,7 +41,7 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
                         STACK_OF(OPENSSL_STRING) *sigopts, const char *serialfile,
                         int create, int days, int clrext, CONF *conf,
                         const char *section, ASN1_INTEGER *sno, int reqfile,
-                        int preserve_dates);
+                        int preserve_dates, const char *startdate2, const char *enddate2);
 static int purpose_print(BIO *bio, X509 *cert, X509_PURPOSE *pt);
 static int print_x509v3_exts(BIO *bio, X509 *x, const char *exts);
 
