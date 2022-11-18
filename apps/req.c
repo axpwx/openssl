@@ -129,7 +129,7 @@ const OPTIONS req_options[] = {
      "Deprecated; multi-valued RDNs support is always on."},
     {"days", OPT_DAYS, 'p', "Number of days cert is valid for"},
     {"set_startdate", OPT_SET_STARTDATE, 's', "Set notBefore field"},
-    {"set_enddate", OPT_SET_STARTDATE, 's', "Set notAfter field"},
+    {"set_enddate", OPT_SET_ENDDATE, 's', "Set notAfter field"},
     {"set_serial", OPT_SET_SERIAL, 's', "Serial number to use"},
     {"copy_extensions", OPT_COPY_EXTENSIONS, 's',
      "copy extensions from request when using -x509"},

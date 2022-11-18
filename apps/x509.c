@@ -137,7 +137,7 @@ const OPTIONS x509_options[] = {
     {"days", OPT_DAYS, 'n',
      "Number of days until newly generated certificate expires - default 30"},
     {"set_startdate", OPT_SET_STARTDATE, 's', "Set notBefore field"},
-    {"set_enddate", OPT_SET_STARTDATE, 's', "Set notAfter field"},
+    {"set_enddate", OPT_SET_ENDDATE, 's', "Set notAfter field"},
     {"preserve_dates", OPT_PRESERVE_DATES, '-',
      "Preserve existing validity dates"},
     {"subj", OPT_SUBJ, 's', "Set or override certificate subject (and issuer)"},
